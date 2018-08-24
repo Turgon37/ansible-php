@@ -1,0 +1,36 @@
+---
+
+- name: Install common php packages
+  package:
+    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    state: present
+  with_items: "{{ php__packages_names[php__packages_source]['common'] }}"
+  loop_control:
+    loop_var: outer_item
+
+- name: Install cli php packages
+  package:
+    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    state: present
+  with_items: "{{ php__packages_names[php__packages_source]['cli'] }}"
+  loop_control:
+    loop_var: outer_item
+  when: php__cli|bool
+
+- name: Install apache mod php packages
+  package:
+    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    state: present
+  with_items: "{{ php__packages_names[php__packages_source]['apachemod'] }}"
+  loop_control:
+    loop_var: outer_item
+  when: php__apachemod|bool
+
+- name: Install FPM php packages
+  package:
+    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    state: present
+  with_items: "{{ php__packages_names[php__packages_source]['fpm'] }}"
+  loop_control:
+    loop_var: outer_item
+  when: php__fpm|bool

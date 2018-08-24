@@ -1,0 +1,26 @@
+---
+# tasks file for ansible-php
+
+- name: Include the OS specific variables
+  include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'
+        - '{{ ansible_lsb.id|d(ansible_distribution) }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - defaults.yml
+      skip: true
+  tags: ['always']
+
+- name: Check role availability
+  fail:
+    msg: 'This module only works on Debian or derivatives like Ubuntu'
+  when: ansible_os_family != 'Debian'
+
+- name: Importing initialization tasks
+  import_tasks: init.yml
+  tags: ['always']
+
+- name: Import install tasks
+  import_tasks: install.yml
+  tags: ['php', 'php-install']

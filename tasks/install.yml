@@ -1,0 +1,9 @@
+---
+
+- name: Run the OS specific install tasks (will fail if not supported)
+  include_tasks: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'install-{{ php__packages_source }}/{{ ansible_os_family }}-{{ ansible_architecture }}.yml'
+        - 'install-{{ php__packages_source }}/{{ ansible_os_family }}.yml'
+        - 'install-{{ ansible_os_family }}.yml'

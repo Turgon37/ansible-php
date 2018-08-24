@@ -1,0 +1,30 @@
+---
+# defaults file for ansible-php
+
+# Enable facts deploiement
+php__facts: true
+
+# Choose the monitoring backend to configure (if available)
+# php__monitoring:
+
+
+### INSTALL CONFIGURATION
+# The major PHP version to install (default to the distribution's latest)
+#  in 5.6, 7.0
+# php__version:
+
+# Choose the source of PHPs packages
+# in 'os'
+php__packages_source: os
+
+# The version of the PHP package (full minor version)
+php__packages_version: latest
+
+# Install and manage 'cli' resources
+php__cli: false
+
+# Install and manage PHP module for Apache2 resources
+php__apachemod: false
+
+# Install and manage PHP FPM resources
+php__fpm: false

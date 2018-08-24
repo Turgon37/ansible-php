@@ -1,0 +1,25 @@
+---
+
+php__packages_version_string: "{{ (php__packages_version != 'latest')|ternary('='~php__packages_version, '') }}"
+
+php__version: '{{
+  5.6 if ansible_distribution_major_version == 8
+  else 7.0
+}}'
+
+php__version_map:
+  '5.6': '5'
+  '7.0': '7.0'
+
+php__packages_names_prefix: 'php{{ php__version_map[php__version] }}-'
+
+php__packages_names:
+  os:
+    common:
+      - '{{ php__packages_names_prefix }}common'
+    cli:
+      - '{{ php__packages_names_prefix }}cli'
+    apachemod:
+      - 'libapache2-mod-php{{ php__version_map[php__version] }}'
+    fpm:
+      - '{{ php__packages_names_prefix }}fpm'

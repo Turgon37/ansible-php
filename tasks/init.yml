@@ -1,0 +1,7 @@
+---
+
+- name: Assert required variables
+  assert:
+    that:
+      - php__version in ['5.6', '7.0']
+      - php__packages_source in ['os']
