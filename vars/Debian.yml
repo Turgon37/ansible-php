@@ -2,10 +2,10 @@
 
 php__packages_version_string: "{{ (php__packages_version != 'latest')|ternary('='~php__packages_version, '') }}"
 
-php__version: '{{
-  5.6 if ansible_distribution_major_version == 8
-  else 7.0
-}}'
+php__version: "{{
+  '5.6' if ansible_distribution_major_version is version_compare('8', '==')
+  else '7.0'
+}}"
 
 php__version_map:
   '5.6': '5'
