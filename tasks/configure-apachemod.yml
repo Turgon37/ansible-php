@@ -1,0 +1,13 @@
+---
+
+- name: Ensure apachemod configuration directories exists
+  file:
+    path: '{{ inner_item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - '{{ php__apachemod_configuration_directory }}'
+  loop_control:
+    loop_var: inner_item

@@ -1,2 +1,35 @@
 ---
 # handlers file for ansible-php
+
+- name: restart-php-fpm
+  command:
+    "{{ php__fpm_service_configuration_validator|replace('%s', php__fpm_service_configuration_file) }}"
+  check_mode: false
+  notify: ['restart-php-fpm-after-config-ok']
+
+- name: restart-php-fpm-daemon
+  service:
+    name: '{{ php__fpm_service_name }}'
+    state: restarted
+  when: php__fpm_service_enabled|bool and php__fpm_service_restartable|bool
+  listen: restart-php-fpm-after-config-ok
+
+- name: mark-daemon-to-restart
+  file:
+    path: '{{ php__fpm_service_restart_stamp_file }}'
+    state: touch
+  when: php__fpm_service_enabled|bool and not php__fpm_service_restartable|bool
+  listen: restart-php-fpm-after-config-ok
+
+- name: reload-php-fpm
+  command:
+    "{{ php__fpm_service_configuration_validator|replace('%s', php__fpm_service_configuration_file) }}"
+  check_mode: false
+  notify: ['reload-php-fpm-after-config-ok']
+
+- name: reload-php-fpm-daemon
+  service:
+    name: '{{ php__fpm_service_name }}'
+    state: reloaded
+  when: php__fpm_service_enabled|bool
+  listen: reload-php-fpm-after-config-ok

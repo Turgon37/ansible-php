@@ -32,7 +32,7 @@ php__packages_names:
 php__debian_configuration_directory_map:
   '5.6': /etc/php5
 
-php__configuration_directory: "{{ php__debian_configuration_directory_map[php__version] if php__version in php__debian_configuration_directory_map else '/etc/php/'~php__version  }}"
+php__configuration_directory: "{{ php__debian_configuration_directory_map[php__version]|d('/etc/php/'~php__version) }}"
 
 php__extensions_configuration_directory: '{{ php__configuration_directory }}/mods-available'
 
@@ -69,3 +69,15 @@ php__extensions_default:
   sysvsem:
   sysvshm:
   tokenizer:
+
+# Service mapping
+php__debian_fpm_service_name_map:
+  '5.6': php5-fpm
+
+php__fpm_service_name: "{{ php__debian_fpm_service_name_map[php__version]|d('php'~php__version~'-fpm') }}"
+
+# Service executable mapping
+php__debian_fpm_service_executable_map:
+  '5.6': /usr/sbin/php5-fpm
+
+php__fpm_service_executable: "{{ php__debian_fpm_service_executable_map[php__version]|d('/usr/sbin/php-fpm'~php__version) }}"

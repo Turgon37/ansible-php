@@ -1,0 +1,53 @@
+---
+
+- name: Ensure cli configuration directories exists
+  file:
+    path: '{{ inner_item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - '{{ php__cli_configuration_directory }}'
+    - '{{ php__cli_include_configuration_directory }}'
+  loop_control:
+    loop_var: inner_item
+
+- name: List available extensions for cli
+  find:
+    paths: '{{ php__extensions_configuration_directory }}'
+    file_type: file
+  register: _php__installed_extensions_files
+
+- name: List enabled extensions for cli
+  find:
+    paths: '{{ php__cli_include_configuration_directory }}'
+    file_type: link
+  register: _php__enabled_extensions_files
+
+- name: Parse extensions variables for cli
+  set_fact:
+    _php__available_extensions: "{{ _php__installed_extensions_files.files|map(attribute='path')|map('basename')|map('replace', '.ini', '')|list }}"
+    _php__enabled_extensions: "{{ _php__enabled_extensions_files.files|map(attribute='path')|map('basename')|map('regex_replace', '^[0-9]+-([^ ]+)\\.ini$', '\\1')|list }}"
+    _php__required_extensions: '{{
+        php__extensions.keys()|list
+        |union(php__cli_extensions.keys()|list)
+        |unique|list
+      }}'
+
+- name: Disable all unwanted php extensions for cli
+  command: 'phpdismod -s cli {{ inner_item }}'
+  with_items: '{{ _php__enabled_extensions|difference(_php__required_extensions)|list }}'
+  loop_control:
+    loop_var: inner_item
+
+- name: Fail is an enabled extension is not available for cli
+  fail:
+    msg: "The PHP extension(s) {{ _php__required_extensions|difference(_php__available_extensions)|join(',') }} is(are) not available"
+  when: _php__required_extensions|difference(_php__available_extensions)|length > 0
+
+- name: Enable all wanted php extensions for cli
+  command: 'phpenmod -s cli {{ inner_item }}'
+  with_items: '{{ _php__required_extensions|difference(_php__enabled_extensions)|list }}'
+  loop_control:
+    loop_var: inner_item

@@ -33,14 +33,40 @@ php__fpm: false
 # Configuration root directory, differ from PHP versions
 # php__configuration_directory:
 
+# Configuration directories for cli SAPI
 php__cli_configuration_directory: '{{ php__configuration_directory }}/cli'
+php__cli_include_configuration_directory: '{{ php__cli_configuration_directory }}/conf.d'
 
+# Configuration directories for FPM SAPI
 php__fpm_configuration_directory: '{{ php__configuration_directory }}/fpm'
+php__fpm_include_configuration_directory: '{{ php__fpm_configuration_directory }}/conf.d'
 
+# Configuration directories for apachemod SAPI
 php__apachemod_configuration_directory: '{{ php__configuration_directory }}/apache2'
+
 
 ### SERVICE CONFIGURATION
 # ---------------------------------------
+
+# The name of the systemd FPM unit
+# php__fpm_service_name:
+
+# If true the FPM service will be started and enabled
+php__fpm_service_enabled: true
+
+# If this is set to true,
+# ansible will automatically restart FPM daemon on changes
+# if not it will be simply marked as 'to be restarted'
+php__fpm_service_restartable: true
+
+# Path to the must restart stamp file
+php__fpm_service_restart_stamp_file: /var/local/php-fpm-must-restart-stamp
+
+# FPM configuration file
+php__fpm_service_configuration_file: '{{ php__fpm_configuration_directory }}/php-fpm.conf'
+
+# Command to use for template validation
+php__fpm_service_configuration_validator: '{{ php__fpm_service_executable }} --nodaemonize --test --fpm-config %s'
 
 
 ### PHP CONFIGURATION

@@ -24,3 +24,7 @@
 - name: Import install tasks
   import_tasks: install.yml
   tags: ['php', 'php-install']
+
+- name: Import configurations tasks
+  import_tasks: configure.yml
+  tags: ['php', 'php-configure']

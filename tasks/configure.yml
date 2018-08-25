@@ -1,0 +1,48 @@
+---
+
+- name: Ensure configuration directory tree exists
+  file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    "{%- set _paths = [] -%}
+    {%- for i in range(php__configuration_directory.split('/')|length-1, php__configuration_directory.split('/')|length) -%}
+    {%   set _ = _paths.append( php__configuration_directory.split('/')[0:i]|join('/') ) %}
+    {%- endfor -%}
+    {{ _paths }}"
+  when: php__configuration_directory.split('/')|length > 2
+
+- name: Ensure configuration directory exists
+  file:
+    path: '{{ php__configuration_directory }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Include PHP cli configuration tasks
+  include_tasks: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'configure-cli-{{ ansible_os_family }}.yml'
+        - 'configure-cli.yml'
+  when: php__cli|bool
+
+- name: Include PHP apache mod configuration tasks
+  include_tasks: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'configure-apachemod-{{ ansible_os_family }}.yml'
+        - 'configure-apachemod.yml'
+  when: php__apachemod|bool
+
+- name: Include PHP FPM configuration tasks
+  include_tasks: '{{ item }}'
+  with_first_found:
+    - files:
+        - 'configure-fpm-{{ ansible_os_family }}.yml'
+        - 'configure-fpm.yml'
+  when: php__fpm|bool

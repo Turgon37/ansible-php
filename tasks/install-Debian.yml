@@ -50,7 +50,7 @@
         |unique|list
       }}'
 
-- name: Install php mod packages
+- name: Install missing php mod packages
   package:
     name: '{{ inner_item }}'
     state: present
