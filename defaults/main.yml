@@ -9,6 +9,7 @@ php__facts: true
 
 
 ### INSTALL CONFIGURATION
+# ---------------------------------------
 # The major PHP version to install (default to the distribution's latest)
 #  in 5.6, 7.0
 # php__version:
@@ -28,3 +29,96 @@ php__apachemod: false
 
 # Install and manage PHP FPM resources
 php__fpm: false
+
+# Configuration root directory, differ from PHP versions
+# php__configuration_directory:
+
+php__cli_configuration_directory: '{{ php__configuration_directory }}/cli'
+
+php__fpm_configuration_directory: '{{ php__configuration_directory }}/fpm'
+
+php__apachemod_configuration_directory: '{{ php__configuration_directory }}/apache2'
+
+### SERVICE CONFIGURATION
+# ---------------------------------------
+
+
+### PHP CONFIGURATION
+# ---------------------------------------
+
+## List of extensions to enable for all SAPIs.
+
+# Default extensions to enable for all SAPI
+php__extensions_default: {}
+
+# Intended to be used at global inventory level
+php__extensions_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__extensions_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__extensions_host: {}
+
+# Combine all enabled extensions
+php__extensions: '{{ php__extensions_global
+    |combine(php__extensions_group)
+    |combine(php__extensions_host)
+  }}'
+
+
+## List of extensions to enable for cli SAPI.
+
+# Intended to be used at global inventory level
+php__cli_extensions_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__cli_extensions_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__cli_extensions_host: {}
+
+# Combine all enabled extensions
+php__cli_extensions: '{{ php__cli_extensions_global
+    |combine(php__cli_extensions_group)
+    |combine(php__cli_extensions_host)
+  }}'
+
+## List of extensions to enable for FPM SAPI.
+
+# Intended to be used at global inventory level
+php__fpm_extensions_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__fpm_extensions_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__fpm_extensions_host: {}
+
+# Combine all enabled extensions
+php__fpm_extensions: '{{ php__fpm_extensions_global
+    |combine(php__fpm_extensions_group)
+    |combine(php__fpm_extensions_host)
+  }}'
+
+
+## List of extensions to enable for apachemod SAPI.
+
+# Intended to be used at global inventory level
+php__apachemod_extensions_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__apachemod_extensions_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__apachemod_extensions_host: {}
+
+# Combine all enabled extensions
+php__apachemod_extensions: '{{ php__apachemod_extensions_global
+    |combine(php__apachemod_extensions_group)
+    |combine(php__apachemod_extensions_host)
+  }}'

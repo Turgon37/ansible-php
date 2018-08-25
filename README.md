@@ -40,7 +40,7 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 
 ## Facts
 
-By default the local fact are installed and expose the following variables :
+I deliver the following facts with this role. This is explicitly NOT intended to be used within your ansible run as it will only work on your second run. Its intention is to make querying versions per server.
 
 * ```ansible_local.```
 

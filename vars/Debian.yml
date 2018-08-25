@@ -1,12 +1,17 @@
 ---
 
+# prefix for all php packages
 php__packages_version_string: "{{ (php__packages_version != 'latest')|ternary('='~php__packages_version, '') }}"
 
-php__version: "{{
-  '5.6' if ansible_distribution_major_version is version_compare('8', '==')
-  else '7.0'
-}}"
+# debian default version
+php__debian_default_version_map:
+  '9': '7.0'
+  '8': '5.6'
 
+# default php version according to Debian distribution
+php__version: '{{ php__debian_default_version_map[ansible_distribution_major_version|string] }}'
+
+# version map to handle old debian php packages names
 php__version_map:
   '5.6': '5'
   '7.0': '7.0'
@@ -23,3 +28,44 @@ php__packages_names:
       - 'libapache2-mod-php{{ php__version_map[php__version] }}'
     fpm:
       - '{{ php__packages_names_prefix }}fpm'
+
+php__debian_configuration_directory_map:
+  '5.6': /etc/php5
+
+php__configuration_directory: "{{ php__debian_configuration_directory_map[php__version] if php__version in php__debian_configuration_directory_map else '/etc/php/'~php__version  }}"
+
+php__extensions_configuration_directory: '{{ php__configuration_directory }}/mods-available'
+
+# map between extensions name and associated package name
+php__extensions_package_names_map:
+  mysqli: '{{ php__packages_names_prefix }}mysql'
+  mysqlnd: '{{ php__packages_names_prefix }}mysql'
+  pdo_mysql: '{{ php__packages_names_prefix }}mysql'
+
+  dom: '{{ php__packages_names_prefix }}xml'
+  simplexml: '{{ php__packages_names_prefix }}xml'
+  wddx: '{{ php__packages_names_prefix }}xml'
+  xmlreader: '{{ php__packages_names_prefix }}xml'
+  xmlwriter: '{{ php__packages_names_prefix }}xml'
+  xsl: '{{ php__packages_names_prefix }}xml'
+
+  ssh2: php-ssh2
+
+# default extensions provided by Debian common package
+php__extensions_default:
+  calendar:
+  ctype:
+  exif:
+  fileinfo:
+  ftp:
+  gettext:
+  iconv:
+  pdo:
+  phar:
+  posix:
+  shmop:
+  sockets:
+  sysvmsg:
+  sysvsem:
+  sysvshm:
+  tokenizer:

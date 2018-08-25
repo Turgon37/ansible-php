@@ -2,35 +2,65 @@
 
 - name: Install common php packages
   package:
-    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    name: '{{ inner_item }}{{ php__packages_version_string }}'
     state: present
   with_items: "{{ php__packages_names[php__packages_source]['common'] }}"
   loop_control:
-    loop_var: outer_item
+    loop_var: inner_item
 
 - name: Install cli php packages
   package:
-    name: '{{ outer_item }}{{ php__packages_version_string }}'
+    name: '{{ inner_item }}{{ php__packages_version_string }}'
     state: present
   with_items: "{{ php__packages_names[php__packages_source]['cli'] }}"
   loop_control:
-    loop_var: outer_item
+    loop_var: inner_item
   when: php__cli|bool
 
-- name: Install apache mod php packages
+- name: Ensure state of apache mod php packages
   package:
-    name: '{{ outer_item }}{{ php__packages_version_string }}'
-    state: present
-  with_items: "{{ php__packages_names[php__packages_source]['apachemod'] }}"
+    name: '{{ inner_item }}{{ php__packages_version_string }}'
+    state: "{{ php__apachemod|bool|ternary('present', 'absent') }}"
+  with_items: "{{ php__packages_names[php__packages_source]['apachemod']|list }}"
   loop_control:
-    loop_var: outer_item
-  when: php__apachemod|bool
+    loop_var: inner_item
 
-- name: Install FPM php packages
+- name: Ensure state of FPM php packages
   package:
-    name: '{{ outer_item }}{{ php__packages_version_string }}'
-    state: present
-  with_items: "{{ php__packages_names[php__packages_source]['fpm'] }}"
+    name: '{{ inner_item }}{{ php__packages_version_string }}'
+    state: "{{ php__fpm|bool|ternary('present', 'absent') }}"
+  with_items: "{{ php__packages_names[php__packages_source]['fpm']|list }}"
   loop_control:
-    loop_var: outer_item
-  when: php__fpm|bool
+    loop_var: inner_item
+
+- name: List available extensions
+  find:
+    paths: '{{ php__extensions_configuration_directory }}'
+    file_type: file
+  register: _php__installed_extensions_files
+
+- name: Parse extensions variables
+  set_fact:
+    _php__available_extensions: "{{ _php__installed_extensions_files.files|map(attribute='path')|map('basename')|map('replace', '.ini', '')|list }}"
+    _php__required_extensions: '{{
+        php__extensions.keys()|list
+        |union(php__cli_extensions.keys()|list)
+        |union(php__apachemod_extensions.keys()|list)
+        |union(php__fpm_extensions.keys()|list)
+        |unique|list
+      }}'
+
+- name: Install php mod packages
+  package:
+    name: '{{ inner_item }}'
+    state: present
+  with_items: '
+    {%- set _packages_to_install = [] -%}
+    {%- for extension_to_install in _php__required_extensions -%}
+    {%-   if extension_to_install not in _php__available_extensions -%}
+    {%     set _ = _packages_to_install.append( php__extensions_package_names_map[extension_to_install]|d(php__packages_names_prefix~extension_to_install) ) %}
+    {%-   endif -%}
+    {%- endfor -%}
+    {{ _packages_to_install|unique|list }}'
+  loop_control:
+    loop_var: inner_item
