@@ -69,6 +69,17 @@ php__fpm_service_configuration_file: '{{ php__fpm_configuration_directory }}/php
 # Command to use for template validation
 php__fpm_service_configuration_validator: '{{ php__fpm_service_executable }} --nodaemonize --test --fpm-config %s'
 
+# Path to systemd override directory
+php__fpm_service_systemd_override_options_directory:
+  '/etc/systemd/system/{{ php__fpm_service_name }}.service.d'
+
+# Define here the name of ansible handler to notify on apachemod configuration changes
+# php__apachemod_service_handler:
+
+# Define here the name of apache service to restart on apachemod configuration changes
+# /!\ take care that the service will be restarted without any condition
+# php__apachemod_service_name:
+
 
 ### PHP CONFIGURATION
 # ---------------------------------------

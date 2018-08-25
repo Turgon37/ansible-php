@@ -14,8 +14,13 @@
 
 - name: Check role availability
   fail:
-    msg: 'This module only works on Debian or derivatives like Ubuntu'
+    msg: 'This role only works on Debian or derivatives like Ubuntu'
   when: ansible_os_family != 'Debian'
+
+- name: Check role availability
+  fail:
+    msg: 'This role only works on systemd service manager'
+  when: ansible_service_mgr != 'systemd'
 
 - name: Importing initialization tasks
   import_tasks: init.yml
@@ -28,6 +33,11 @@
 - name: Import configurations tasks
   import_tasks: configure.yml
   tags: ['php', 'php-configure']
+
+- name: Include FPM service tasks
+  include_tasks: service.yml
+  when: php__fpm|bool
+  tags: ['php', 'php-service']
 
 - name: Optionally include monitoring tasks
   include_tasks: 'monitoring/{{ php__monitoring }}.yml'

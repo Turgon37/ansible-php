@@ -17,6 +17,8 @@ Require Ansible >= 2.4
 
 ### Dependencies
 
+If you use the zabbix monitoring profile you will need the role [ansible-zabbix-agent](https://github.com/Turgon37/ansible-zabbix-agent)
+
 ## OS Family
 
 This role is available for Debian
@@ -26,6 +28,8 @@ This role is available for Debian
 At this day the role can be used to :
 
   * install php
+  * monitoring items for
+    * Zabbix
   * [local facts](#facts)
 
 ## Configuration
@@ -34,15 +38,25 @@ At this day the role can be used to :
 
 All variables which can be overridden are stored in [defaults/main.yml](defaults/main.yml) file as well as in table below. To see default values please refer to this file.
 
-| Name | Description  |
-| ---- | ------------ |
-| ``   |              |
+| Name                                          | Types/Values       | Description                                                                                        |
+| --------------------------------------------- | -------------------|--------------------------------------------------------------------------------------------------- |
+| `php__version`                                | String             | Choose to PHP version to install (ex 5.6, 7.0) default to latest available in repository           |
+| `php__cli`                                    | Boolean            | Install or not php command line SAPI                                                               |
+| `php__fpm`                                    | Boolean            | Install or not (and configure) php FPM SAPI                                                        |
+| `php__apachemod`                              | Boolean            | Install or not apache mod php SAPI                                                                 |
+| `php__apachemod_service_handler`              | String             | The name of ansible handler to notify on apachemod configuration changes                           |
+| `php__apachemod_service_name`                 | String             | The name of apache service to restart on apachemod configuration changes                           |
+| `php__extensions_global/group/host`           | Dict of extensions | PHP extensions that will be enabled for all SAPI                                                   |
+| `php__cli_extensions_global/group/host`       | Dict of extensions | PHP extensions that will be enabled only for cli SAPI (in addition to dict above)                  |
+| `php__fpm_extensions_global/group/host`       | Dict of extensions | PHP extensions that will be enabled only for fpm SAPI (in addition to dict two lines above)        |
+| `php__apachemod_extensions_global/group/host` | Dict of extensions | PHP extensions that will be enabled only for apachemod SAPI (in addition to dict three lines above)|
 
 ## Facts
 
 I deliver the following facts with this role. This is explicitly NOT intended to be used within your ansible run as it will only work on your second run. Its intention is to make querying versions per server.
 
-* ```ansible_local.```
+* ```ansible_local.php.version_full```
+* ```ansible_local.php.version_major```
 
 
 ## Example
