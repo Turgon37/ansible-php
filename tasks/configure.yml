@@ -23,26 +23,25 @@
     mode: 0755
     state: directory
 
-- name: Include PHP cli configuration tasks
-  include_tasks: '{{ item }}'
-  with_first_found:
-    - files:
-        - 'configure-cli-{{ ansible_os_family }}.yml'
-        - 'configure-cli.yml'
-  when: php__cli|bool
-
-- name: Include PHP apache mod configuration tasks
-  include_tasks: '{{ item }}'
-  with_first_found:
-    - files:
-        - 'configure-apachemod-{{ ansible_os_family }}.yml'
-        - 'configure-apachemod.yml'
-  when: php__apachemod|bool
-
-- name: Include PHP FPM configuration tasks
-  include_tasks: '{{ item }}'
-  with_first_found:
-    - files:
-        - 'configure-fpm-{{ ansible_os_family }}.yml'
-        - 'configure-fpm.yml'
-  when: php__fpm|bool
+- name: Include PHP SAPIs configuration tasks
+  include_tasks: configure-sapi.yml
+  with_items:
+    - name: cli
+      condition: '{{ php__cli|bool }}'
+      configuration_directory: '{{ php__cli_configuration_directory }}'
+      configuration_include_directory: '{{ php__cli_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__cli_extensions }}'
+    - name: apache2
+      condition: '{{ php__apachemod|bool }}'
+      configuration_directory: '{{ php__apachemod_configuration_directory }}'
+      configuration_include_directory: '{{ php__apachemod_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__apachemod_extensions }}'
+    - name: fpm
+      condition: '{{ php__fpm|bool }}'
+      configuration_directory: '{{ php__fpm_configuration_directory }}'
+      configuration_include_directory: '{{ php__fpm_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__fpm_extensions }}'
+      notify: ['restart-php-fpm']
+  when: outer_item.condition
+  loop_control:
+    loop_var: outer_item

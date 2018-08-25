@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure cli configuration directories exists
+- name: 'Ensure {{ outer_item.name }} configuration directories exists'
   file:
     path: '{{ inner_item }}'
     owner: root
@@ -8,46 +8,48 @@
     mode: 0755
     state: directory
   with_items:
-    - '{{ php__cli_configuration_directory }}'
-    - '{{ php__cli_include_configuration_directory }}'
+    - '{{ outer_item.configuration_directory }}'
+    - '{{ outer_item.configuration_include_directory }}'
   loop_control:
     loop_var: inner_item
 
-- name: List available extensions for cli
+- name: 'List available extensions for {{ outer_item.name }}'
   find:
     paths: '{{ php__extensions_configuration_directory }}'
     file_type: file
   register: _php__installed_extensions_files
 
-- name: List enabled extensions for cli
+- name: 'List enabled extensions for {{ outer_item.name }}'
   find:
-    paths: '{{ php__cli_include_configuration_directory }}'
+    paths: '{{ outer_item.configuration_include_directory }}'
     file_type: link
   register: _php__enabled_extensions_files
 
-- name: Parse extensions variables for cli
+- name: 'Parse extensions variables for {{ outer_item.name }}'
   set_fact:
     _php__available_extensions: "{{ _php__installed_extensions_files.files|map(attribute='path')|map('basename')|map('replace', '.ini', '')|list }}"
     _php__enabled_extensions: "{{ _php__enabled_extensions_files.files|map(attribute='path')|map('basename')|map('regex_replace', '^[0-9]+-([^ ]+)\\.ini$', '\\1')|list }}"
     _php__required_extensions: '{{
         php__extensions.keys()|list
-        |union(php__cli_extensions.keys()|list)
+        |union(outer_item.sapi_specific_extensions.keys()|list)
         |unique|list
       }}'
 
-- name: Disable all unwanted php extensions for cli
-  command: '{{ php__extensions_tool_disable }} -s cli {{ inner_item }}'
-  with_items: '{{ _php__enabled_extensions|difference(_php__required_extensions)|list }}'
-  loop_control:
-    loop_var: inner_item
-
-- name: Fail is an enabled extension is not available for cli
+- name: 'Fail is an enabled extension is not available for {{ outer_item.name }}'
   fail:
     msg: "The PHP extension(s) {{ _php__required_extensions|difference(_php__available_extensions)|join(',') }} is(are) not available"
   when: _php__required_extensions|difference(_php__available_extensions)|length > 0
 
-- name: Enable all wanted php extensions for cli
-  command: '{{ php__extensions_tool_enable }} -s cli {{ inner_item }}'
+- name: 'Disable all unwanted php extensions for {{ outer_item.name }}'
+  command: '{{ php__extensions_tool_disable }} -s {{ outer_item.name }} {{ inner_item }}'
+  with_items: '{{ _php__enabled_extensions|difference(_php__required_extensions)|list }}'
+  loop_control:
+    loop_var: inner_item
+  notify: '{{ outer_item.notify|d([]) }}'
+
+- name: 'Enable all wanted php extensions for {{ outer_item.name }}'
+  command: '{{ php__extensions_tool_enable }} -s {{ outer_item.name }} {{ inner_item }}'
   with_items: '{{ _php__required_extensions|difference(_php__enabled_extensions)|list }}'
   loop_control:
     loop_var: inner_item
+  notify: '{{ outer_item.notify|d([]) }}'

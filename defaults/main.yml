@@ -43,6 +43,7 @@ php__fpm_include_configuration_directory: '{{ php__fpm_configuration_directory }
 
 # Configuration directories for apachemod SAPI
 php__apachemod_configuration_directory: '{{ php__configuration_directory }}/apache2'
+php__apachemod_include_configuration_directory: '{{ php__apachemod_configuration_directory }}/conf.d'
 
 
 ### SERVICE CONFIGURATION
