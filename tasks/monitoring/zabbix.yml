@@ -1,0 +1,16 @@
+---
+
+- name: Configure zabbix userparameters
+  include_role:
+    name: zabbix-agent
+    tasks_from: types/user_parameter
+  vars:
+    zabbix_agent__userparameter:
+      name: php_fpm
+      userparameters:
+        - key: php_fpm.discovery
+          comment: return zabbix discovery item for FPM master daemon
+          command: >
+            /usr/bin/env python -c 'import json, sys; json.dump({"data": [{"{"+"#PHP_FPM_INSTANCE}": "master", "{"+"#PHP_FPM_EXECUTABLE}": "{{ php__fpm_service_executable|basename }}", "{"+"#PHP_FPM_CONFIGURATION_FILE}": "{{ php__fpm_service_configuration_file }}"}]}, sys.stdout)'
+      state: "{{ php__fpm|ternary('present', 'absent') }}"
+  tags: ['php', 'php-monitoring']

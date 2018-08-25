@@ -28,3 +28,13 @@
 - name: Import configurations tasks
   import_tasks: configure.yml
   tags: ['php', 'php-configure']
+
+- name: Optionally include monitoring tasks
+  include_tasks: 'monitoring/{{ php__monitoring }}.yml'
+  when: php__monitoring is defined
+  tags: ['php', 'php-monitoring']
+
+- name: Optionally include facts tasks
+  include_tasks: facts.yml
+  when: php__facts|bool
+  tags: ['php', 'php-facts']
