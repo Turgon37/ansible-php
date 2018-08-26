@@ -5,3 +5,7 @@
     that:
       - php__version in ['5.6', '7.0']
       - php__packages_source in ['os']
+      - php__fpm_log_level in ['alert', 'error', 'warning', 'notice', 'debug']
+      - php__fpm_process_priority is not defined or (-19 <= php__fpm_process_priority and php__fpm_process_priority <= 20)
+      - php__fpm_rlimit_core is not defined or php__fpm_rlimit_core == 'unlimited' or (php__fpm_rlimit_core >= 0)
+      - php__fpm_events_mechanism is not defined or php__fpm_events_mechanism in ['select','poll','epoll']

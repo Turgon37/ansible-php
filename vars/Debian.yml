@@ -4,12 +4,12 @@
 php__packages_version_string: "{{ (php__packages_version != 'latest')|ternary('='~php__packages_version, '') }}"
 
 # debian default version
-php__debian_default_version_map:
+php__default_version_map:
   '9': '7.0'
   '8': '5.6'
 
 # default php version according to Debian distribution
-php__version: '{{ php__debian_default_version_map[ansible_distribution_major_version|string] }}'
+php__version: '{{ php__default_version_map[ansible_distribution_major_version|string] }}'
 
 # version map to handle old debian php packages names
 php__version_map:
@@ -29,10 +29,9 @@ php__packages_names:
     fpm:
       - '{{ php__packages_names_prefix }}fpm'
 
-php__debian_configuration_directory_map:
+php__configuration_directory_map:
   '5.6': /etc/php5
-
-php__configuration_directory: "{{ php__debian_configuration_directory_map[php__version]|d('/etc/php/'~php__version) }}"
+php__configuration_directory: "{{ php__configuration_directory_map[php__version]|d('/etc/php/'~php__version) }}"
 
 php__extensions_configuration_directory: '{{ php__configuration_directory }}/mods-available'
 
@@ -73,24 +72,29 @@ php__extensions_default:
 # path to extensions enabler tool
 php__extensions_tool_enable_map:
   '5.6': /usr/sbin/php5enmod
-
 php__extensions_tool_enable: "{{ php__extensions_tool_enable_map[php__version]|d('/usr/sbin/phpenmod -v '~php__version) }}"
 
 # path to extensions disabler tool
 php__extensions_tool_disable_map:
   '5.6': /usr/sbin/php5dismod
-
 php__extensions_tool_disable: "{{ php__extensions_tool_disable_map[php__version]|d('/usr/sbin/phpdismod -v '~php__version) }}"
-
 
 # Service mapping
 php__fpm_service_name_map:
   '5.6': php5-fpm
-
 php__fpm_service_name: "{{ php__fpm_service_name_map[php__version]|d('php'~php__version~'-fpm') }}"
 
 # Service executable mapping
 php__fpm_service_executable_map:
   '5.6': /usr/sbin/php5-fpm
-
 php__fpm_service_executable: "{{ php__fpm_service_executable_map[php__version]|d('/usr/sbin/php-fpm'~php__version) }}"
+
+# Service pid file
+php__fpm_service_pidfile_map:
+  '5.6': /var/run/php5-fpm.pid
+php__fpm_service_pidfile: "{{ php__fpm_service_pidfile_map[php__version]|d('/var/run/php/php'~php__version~'-fpm.pid') }}"
+
+# FPM error log
+php__fpm_error_log_map:
+  '5.6': /var/log/php5-fpm.log
+php__fpm_error_log: "{{ php__fpm_error_log_map[php__version]|d('/var/log/php'~php__version~'-fpm.log') }}"

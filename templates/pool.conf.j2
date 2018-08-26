@@ -1,0 +1,40 @@
+{%- import '_macros.j2' as macros with context -%}
+{{ ansible_managed|comment(decoration='; ') }}
+
+; the variable $pool can be used in any directive and will be replaced by the
+; pool name
+[{{ php__fpm_pool.name }}]
+
+user = {{ php__fpm_pool.user }}
+group = {{ php__fpm_pool.group }}
+
+listen = {{ php__fpm_pool.listen }}
+listen.backlog = {{ php__fpm_pool.listen_backlog }}
+listen.owner = {{ php__fpm_pool.listen_owner }}
+listen.group = {{ php__fpm_pool.listen_group }}
+listen.mode = {{ php__fpm_pool.listen_mode }}
+
+{% if php__fpm_pool.listen_acl_users is defined %}
+listen.acl_users = {{ php__fpm_pool.listen_acl_users }}
+{% endif %}
+{% if php__fpm_pool.listen_acl_groups is defined %}
+listen.acl_groups = {{ php__fpm_pool.listen_acl_groups  }}
+{% endif %}
+listen.allowed_clients = {{ php__fpm_pool.listen_allowed_clients }}
+
+{% if php__fpm_pool.process_priority is defined %}
+process.priority = {{ php__fpm_pool.process_priority }}
+{% endif %}
+process.dumpable = {{ macros.bool(php__fpm_pool.process_dumpable) }}
+
+pm = {{ php__fpm_pool.pm }}
+pm.max_children = {{ php__fpm_pool.pm_max_children }}
+pm.start_servers = {{ php__fpm_pool.pm_start_servers }}
+pm.min_spare_servers = {{ php__fpm_pool.pm_min_spare_servers }}
+pm.max_spare_servers = {{ php__fpm_pool.pm_max_spare_servers }}
+pm.process_idle_timeout = {{ php__fpm_pool.pm_process_idle_timeout }}
+pm.max_requests = {{ php__fpm_pool.pm_max_requests }}
+
+{% if php__fpm_pool.pm_status_path is defined and php__fpm_pool.pm_status_path != omit %}
+pm.status_path = {{ php__fpm_pool.pm_status_path }}
+{% endif %}
