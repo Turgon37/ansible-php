@@ -38,3 +38,9 @@ pm.max_requests = {{ php__fpm_pool.pm_max_requests }}
 {% if php__fpm_pool.pm_status_path is defined and php__fpm_pool.pm_status_path != omit %}
 pm.status_path = {{ php__fpm_pool.pm_status_path }}
 {% endif %}
+{% if php__fpm_pool.ping_path is defined %}
+ping.path = {{ php__fpm_pool.ping_path }}
+{% endif %}
+{% if php__fpm_pool.ping_response is defined %}
+ping.response = {{ php__fpm_pool.ping_response }}
+{% endif %}

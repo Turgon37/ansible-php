@@ -13,6 +13,9 @@
       - php__fpm_pool.pm is defined and php__fpm_pool.pm in ['static', 'dynamic', 'ondemand']
       - php__fpm_pool.pm != 'dynamic' or php__fpm_pool.pm_min_spare_servers is defined
       - php__fpm_pool.pm != 'dynamic' or php__fpm_pool.pm_max_spare_servers is defined
+      - php__fpm_pool.pm_status_path is not defined or php__fpm_pool.pm_status_path == omit
+         or php__fpm_pool.pm_status_path[0] == '/'
+      - php__fpm_pool.ping_path is not defined or php__fpm_pool.ping_path[0] == '/'
     msg: >
       php__fpm_pool must be defined with specifications,
       php__fpm_pool.name must contains the name of the instance,

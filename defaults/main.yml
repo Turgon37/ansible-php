@@ -367,5 +367,13 @@ php__fpm_defaut_pool:
   pm_max_requests: 0
 
   # The URI to view the FPM status page. If this value is not set, no URI will be
-  # recognized as a status page. It shows the following informations:
+  # recognized as a status page.
   pm_status_path: "{{ (php__monitoring is defined)|ternary('/fpm-status', omit) }}"
+
+  # The ping URI to call the monitoring page of FPM. If this value is not set, no
+  # URI will be recognized as a ping page.
+  # ping_path: /php-ping
+
+  # This directive may be used to customize the response of a ping request. The
+  # response is formatted as text/plain with a 200 response code.
+  # ping_response: pong
