@@ -13,8 +13,6 @@ host=$2
 port=$3
 socket=$4
 
-echo "'$1' '$2' '$3' '$4'"
-
 if [[ ! -x ${fcgi_script} ]]; then
   echo 'unable to find fast cgi client script' 1>&2
   exit 1

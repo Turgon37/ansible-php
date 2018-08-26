@@ -32,5 +32,9 @@
             /usr/bin/env python -c 'import json, sys; json.dump({"data": list(map(lambda x: dict(map(lambda y: ("{"+"#"+y[0]+"}", y[1]), x.items())), {{ _monitored_pools|to_json }})) }, sys.stdout)'
         - key: php_fpm.pools.status[*]
           command: '{{ php__custom_scripts_directory }}/php_status.sh "$1" "$2" "$3" "$4"'
+          sudo: true
+          sudo_user: '{{ php__fpm_service_user }}'
+          sudo_group: '{{ php__fpm_service_group }}'
+          sudo_command: '{{ php__custom_scripts_directory }}/php_status.sh'
       state: "{{ php__fpm|ternary('present', 'absent') }}"
   tags: ['php', 'php-monitoring']

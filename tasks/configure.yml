@@ -33,7 +33,7 @@
   with_items:
     - '{{ php__custom_scripts_directory }}'
 
-- name: Install nginx custom scripts
+- name: Install PHP custom scripts
   copy:
     src: 'files/{{ item }}'
     dest: '{{ php__custom_scripts_directory }}/{{ item }}'

@@ -14,7 +14,14 @@
     name: '{{ php__fpm_service_name }}'
     state: restarted
   when: php__fpm_service_enabled|bool and php__fpm_service_restartable|bool
+  failed_when: false
+  notify: ['show-error']
   listen: restart-php-fpm-after-config-ok
+
+# temp
+- name: show-error
+  command: journalctl -xn
+# temp
 
 - name: mark-daemon-to-restart
   file:
@@ -34,6 +41,8 @@
     name: '{{ php__fpm_service_name }}'
     state: reloaded
   when: php__fpm_service_enabled|bool
+  failed_when: false
+  notify: ['show-error']
   listen: reload-php-fpm-after-config-ok
 
 # apache2

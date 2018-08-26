@@ -80,6 +80,9 @@ php__fpm_service_systemd_override_options_directory:
 # Location of the FPM pidfile
 # php__fpm_service_pidfile:
 
+# The default FPM runtime directory
+php__fpm_service_run_dir: /run/php/
+
 # Directory where to put custom script for PHP
 php__custom_scripts_directory: /opt/php-scripts
 
@@ -110,7 +113,8 @@ php__extensions_group: {}
 php__extensions_host: {}
 
 # Combine all enabled extensions
-php__extensions: '{{ php__extensions_global
+php__extensions: '{{ php__extensions_default
+    |combine(php__extensions_global)
     |combine(php__extensions_group)
     |combine(php__extensions_host)
   }}'
@@ -245,7 +249,7 @@ php__fpm_purge_pools: true
 # Default list of pool
 php__fpm_pools_default:
   www:
-    listen: /run/php/php7.0-fpm.sock
+    listen: '{{ php__fpm_service_run_dir }}/php{{ php__version }}-fpm.sock'
     pm: dynamic
 
 # This variable is intended to be used in Ansible’s global inventory.
