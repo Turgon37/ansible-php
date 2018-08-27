@@ -86,7 +86,7 @@ php__fpm_service_run_dir: /run/php
 # Directory where to put custom script for PHP
 php__custom_scripts_directory: /opt/php-scripts
 
-# Define here the name of ansible handler to notify on apachemod 
+# Define here the name of ansible handler to notify on apachemod
 # configuration changes when a restart is required
 # php__apachemod_service_restart_handler:
 
