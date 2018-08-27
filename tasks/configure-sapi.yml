@@ -53,3 +53,20 @@
   loop_control:
     loop_var: inner_item
   notify: '{{ outer_item.notify|d([]) }}'
+
+- name: 'Configure php.ini for {{ outer_item.name }}'
+  ini_file:
+    path: '{{ outer_item.configuration_directory }}/php.ini'
+    section: "
+      {%- set _key_slash_parts = item.key.split('/') -%}
+      {%- set _key_dot_parts = item.key.split('.') -%}
+      {%- if _key_slash_parts|length == 2 -%}
+      {{ _key_slash_parts[0] }}
+      {%- elif _key_dot_parts|length == 2 -%}
+      {{ _key_dot_parts[0] }}
+      {%- endif -%}"
+    option: "{{ item.key.split('/')[1] if item.key.split('/')|length == 2 else item.key }}"
+    value: '{{ item.value }}'
+    mode: 0600
+  with_dict: '{{ php__settings|combine(outer_item.sapi_specific_settings) }}'
+  notify: '{{ outer_item.notify|d([]) }}'

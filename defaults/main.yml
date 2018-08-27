@@ -86,15 +86,20 @@ php__fpm_service_run_dir: /run/php/
 # Directory where to put custom script for PHP
 php__custom_scripts_directory: /opt/php-scripts
 
-# Define here the name of ansible handler to notify on apachemod configuration changes
-# php__apachemod_service_handler:
+# Define here the name of ansible handler to notify on apachemod 
+# configuration changes when a restart is required
+# php__apachemod_service_restart_handler:
+
+# Define here the name of ansible handler to notify on apachemod
+# configuration changes when a reload is required
+# php__apachemod_service_reload_handler:
 
 # Define here the name of apache service to restart on apachemod configuration changes
 # /!\ take care that the service will be restarted without any condition
 # php__apachemod_service_name:
 
 
-### PHP CONFIGURATION
+### PHP EXTENSIONS
 # ---------------------------------------
 
 ## List of extensions to enable for all SAPIs.
@@ -173,6 +178,86 @@ php__apachemod_extensions_host: {}
 php__apachemod_extensions: '{{ php__apachemod_extensions_global
     |combine(php__apachemod_extensions_group)
     |combine(php__apachemod_extensions_host)
+  }}'
+
+
+### PHP CONFIGURATION
+# ---------------------------------------
+
+## List of PHP settings to manage for all SAPIs.
+
+# Default extensions to enable for all SAPI
+php__settings_default: {}
+
+# Intended to be used at global inventory level
+php__settings_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__settings_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__settings_host: {}
+
+# Combine all enabled settings
+php__settings: '{{ php__settings_default
+    |combine(php__settings_global)
+    |combine(php__settings_group)
+    |combine(php__settings_host)
+  }}'
+
+## List of PHP settings to manage for cli SAPI.
+
+# Intended to be used at global inventory level
+php__cli_settings_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__cli_settings_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__cli_settings_host: {}
+
+# Combine all enabled settings
+php__cli_settings: '{{ php__cli_settings_global
+    |combine(php__cli_settings_group)
+    |combine(php__cli_settings_host)
+  }}'
+
+## List of PHP settings to manage for FPM SAPI.
+
+# Intended to be used at global inventory level
+php__fpm_settings_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__fpm_settings_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__fpm_settings_host: {}
+
+# Combine all enabled settings
+php__fpm_settings: '{{ php__fpm_settings_global
+    |combine(php__fpm_settings_group)
+    |combine(php__fpm_settings_host)
+  }}'
+
+## List of PHP settings to manage for apachemod SAPI.
+
+# Intended to be used at global inventory level
+php__apachemod_settings_global: {}
+
+# This variable is intended to be used in a host inventory group of Ansible
+# (only one host group is supported).
+php__apachemod_settings_group: {}
+
+# This variable is intended to be used in the inventory of hosts.
+php__apachemod_settings_host: {}
+
+# Combine all enabled settings
+php__apachemod_settings: '{{ php__apachemod_settings_global
+    |combine(php__apachemod_settings_group)
+    |combine(php__apachemod_settings_host)
   }}'
 
 

@@ -52,18 +52,21 @@
       configuration_directory: '{{ php__cli_configuration_directory }}'
       configuration_include_directory: '{{ php__cli_include_configuration_directory }}'
       sapi_specific_extensions: '{{ php__cli_extensions }}'
+      sapi_specific_settings: '{{ php__cli_settings }}'
     - name: apache2
       condition: '{{ php__apachemod|bool }}'
       configuration_directory: '{{ php__apachemod_configuration_directory }}'
       configuration_include_directory: '{{ php__apachemod_include_configuration_directory }}'
       sapi_specific_extensions: '{{ php__apachemod_extensions }}'
-      notify: ['restart-php-apache2']
+      sapi_specific_settings: '{{ php__apachemod_settings }}'
+      notify: ['reload-php-apache2']
     - name: fpm
       condition: '{{ php__fpm|bool }}'
       configuration_directory: '{{ php__fpm_configuration_directory }}'
       configuration_include_directory: '{{ php__fpm_include_configuration_directory }}'
       sapi_specific_extensions: '{{ php__fpm_extensions }}'
-      notify: ['restart-php-fpm']
+      sapi_specific_settings: '{{ php__fpm_settings }}'
+      notify: ['reload-php-fpm']
   when: outer_item.condition
   loop_control:
     loop_var: outer_item

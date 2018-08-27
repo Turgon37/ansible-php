@@ -21,7 +21,8 @@ platforms:
 provisioner:
   name: ansible
   options:
-    vv: true
+    v: true
+    diff: true
   lint:
     name: ansible-lint
 scenario:

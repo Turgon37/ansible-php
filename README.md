@@ -44,7 +44,8 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `php__cli`                                    | Boolean            | Install or not php command line SAPI                                                               |
 | `php__fpm`                                    | Boolean            | Install or not (and configure) php FPM SAPI                                                        |
 | `php__apachemod`                              | Boolean            | Install or not apache mod php SAPI                                                                 |
-| `php__apachemod_service_handler`              | String             | The name of ansible handler to notify on apachemod configuration changes                           |
+| `php__apachemod_service_restart_handler`      | String             | The name of ansible handler to notify on apachemod configuration changes that require restart      |
+| `php__apachemod_service_reload_handler`       | String             | The name of ansible handler to notify on apachemod configuration changes that require reload       |
 | `php__apachemod_service_name`                 | String             | The name of apache service to restart on apachemod configuration changes                           |
 | `php__extensions_global/group/host`           | Dict of extensions | PHP extensions that will be enabled for all SAPI                                                   |
 | `php__cli_extensions_global/group/host`       | Dict of extensions | PHP extensions that will be enabled only for cli SAPI (in addition to dict above)                  |
