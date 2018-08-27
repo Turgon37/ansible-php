@@ -81,7 +81,7 @@ php__fpm_service_systemd_override_options_directory:
 # php__fpm_service_pidfile:
 
 # The default FPM runtime directory
-php__fpm_service_run_dir: /run/php/
+php__fpm_service_run_dir: /run/php
 
 # Directory where to put custom script for PHP
 php__custom_scripts_directory: /opt/php-scripts
@@ -104,9 +104,6 @@ php__custom_scripts_directory: /opt/php-scripts
 
 ## List of extensions to enable for all SAPIs.
 
-# Default extensions to enable for all SAPI
-php__extensions_default: {}
-
 # Intended to be used at global inventory level
 php__extensions_global: {}
 
@@ -118,8 +115,7 @@ php__extensions_group: {}
 php__extensions_host: {}
 
 # Combine all enabled extensions
-php__extensions: '{{ php__extensions_default
-    |combine(php__extensions_global)
+php__extensions: '{{ php__extensions_global
     |combine(php__extensions_group)
     |combine(php__extensions_host)
   }}'

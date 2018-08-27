@@ -65,7 +65,7 @@
 
 - name: reload-php-apache2-daemon
   service:
-    name: '{{ php__apachemod_service_restart_handler }}'
+    name: '{{ php__apachemod_service_name }}'
     state: reloaded
   when: php__apachemod_service_name is defined
   listen: reload-php-apache2

@@ -50,30 +50,6 @@ php__extensions_package_names_map:
 
   ssh2: php-ssh2
 
-# default extensions provided by Debian common package
-php__extensions_default_map:
-  5.6: {}
-
-php__extensions_default_default:
-  calendar:
-  ctype:
-  exif:
-  fileinfo:
-  ftp:
-  gettext:
-  iconv:
-  pdo:
-  phar:
-  posix:
-  shmop:
-  sockets:
-  sysvmsg:
-  sysvsem:
-  sysvshm:
-  tokenizer:
-
-php__extensions_default: '{{ php__extensions_default_map[php__version]|d(php__extensions_default_default) }}'
-
 # path to extensions enabler tool
 php__extensions_tool_enable_map:
   '5.6': /usr/sbin/php5enmod
