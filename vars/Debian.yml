@@ -9,7 +9,7 @@ php__default_version_map:
   '8': '5.6'
 
 # default php version according to Debian distribution
-php__version: '{{ php__default_version_map[ansible_distribution_major_version|string] }}'
+php__defaut_version: '{{ php__default_version_map[ansible_distribution_major_version|string] }}'
 
 # version map to handle old debian php packages names
 php__version_map:
@@ -50,6 +50,29 @@ php__extensions_package_names_map:
 
   ssh2: php-ssh2
 
+# default extensions provided by Debian common package
+php__extensions_default_map:
+  5.6: {}
+  default:
+    calendar:
+    ctype:
+    exif:
+    fileinfo:
+    ftp:
+    gettext:
+    iconv:
+    pdo:
+    phar:
+    posix:
+    shmop:
+    sockets:
+    sysvmsg:
+    sysvsem:
+    sysvshm:
+    tokenizer:
+
+php__default_extensions_default: "{{ php__extensions_default_map[php__version]|d(php__extensions_default_map['default']) }}"
+
 # path to extensions enabler tool
 php__extensions_tool_enable_map:
   '5.6': /usr/sbin/php5enmod
@@ -78,4 +101,4 @@ php__fpm_service_pidfile: "{{ php__fpm_service_pidfile_map[php__version]|d('/var
 # FPM error log
 php__fpm_error_log_map:
   '5.6': /var/log/php5-fpm.log
-php__fpm_error_log: "{{ php__fpm_error_log_map[php__version]|d('/var/log/php'~php__version~'-fpm.log') }}"
+php__default_fpm_error_log: "{{ php__fpm_error_log_map[php__version]|d('/var/log/php'~php__version~'-fpm.log') }}"

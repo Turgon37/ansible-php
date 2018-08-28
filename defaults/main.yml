@@ -12,7 +12,7 @@ php__facts: true
 # ---------------------------------------
 # The major PHP version to install (default to the distribution's latest)
 #  in 5.6, 7.0
-# php__version:
+php__version: '{{ php__defaut_version }}'
 
 # Choose the source of PHPs packages
 # in 'os'
@@ -104,6 +104,9 @@ php__custom_scripts_directory: /opt/php-scripts
 
 ## List of extensions to enable for all SAPIs.
 
+# Default extensions to enable for all SAPI
+php__extensions_default: '{{ php__default_extensions_default }}'
+
 # Intended to be used at global inventory level
 php__extensions_global: {}
 
@@ -115,7 +118,8 @@ php__extensions_group: {}
 php__extensions_host: {}
 
 # Combine all enabled extensions
-php__extensions: '{{ php__extensions_global
+php__extensions: '{{ php__extensions_default
+    |combine(php__extensions_global)
     |combine(php__extensions_group)
     |combine(php__extensions_host)
   }}'
@@ -182,9 +186,6 @@ php__apachemod_extensions: '{{ php__apachemod_extensions_global
 
 ## List of PHP settings to manage for all SAPIs.
 
-# Default extensions to enable for all SAPI
-php__settings_default: {}
-
 # Intended to be used at global inventory level
 php__settings_global: {}
 
@@ -196,8 +197,7 @@ php__settings_group: {}
 php__settings_host: {}
 
 # Combine all enabled settings
-php__settings: '{{ php__settings_default
-    |combine(php__settings_global)
+php__settings: '{{ php__settings_global
     |combine(php__settings_group)
     |combine(php__settings_host)
   }}'
@@ -263,7 +263,7 @@ php__apachemod_settings: '{{ php__apachemod_settings_global
 # Error log file
 # If it's set to "syslog", log is sent to syslogd instead of being written
 # in a local file.
-# php__fpm_error_log:
+php__fpm_error_log: '{{ php__default_fpm_error_log }}'
 
 # syslog_facility is used to specify what type of program is logging the
 # message. This lets syslogd specify that messages from different facilities

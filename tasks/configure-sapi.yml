@@ -68,5 +68,6 @@
     option: "{{ item.key.split('/')[1] if item.key.split('/')|length == 2 else item.key }}"
     value: '{{ item.value }}'
     mode: 0600
+    state: "{{ 'absent' if item.value is none else 'present' }}"
   with_dict: '{{ php__settings|combine(outer_item.sapi_specific_settings) }}'
   notify: '{{ outer_item.notify|d([]) }}'
