@@ -1,0 +1,76 @@
+---
+
+- name: Ensure configuration directory tree exists
+  file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    "{%- set _paths = [] -%}
+    {%- for i in range(php__configuration_directory.split('/')|length-1, php__configuration_directory.split('/')|length) -%}
+    {%   set _ = _paths.append( php__configuration_directory.split('/')[0:i]|join('/') ) %}
+    {%- endfor -%}
+    {{ _paths }}"
+  when: php__configuration_directory.split('/')|length > 2
+
+- name: Ensure configuration directory exists
+  file:
+    path: '{{ php__configuration_directory }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Create custom scripts directory
+  file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - '{{ php__custom_scripts_directory }}'
+
+- name: Install PHP custom scripts
+  copy:
+    src: 'files/{{ item }}'
+    dest: '{{ php__custom_scripts_directory }}/{{ item }}'
+    owner: root
+    group: root
+    mode: 0755
+  with_items:
+    - fcgi_client.py
+    - php_status.sh
+
+- name: Include PHP SAPIs configuration tasks
+  include_tasks: configure-sapi.yml
+  with_items:
+    - name: cli
+      condition: '{{ php__cli|bool }}'
+      configuration_directory: '{{ php__cli_configuration_directory }}'
+      configuration_include_directory: '{{ php__cli_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__cli_extensions }}'
+      sapi_specific_settings: '{{ php__cli_settings }}'
+    - name: apache2
+      condition: '{{ php__apachemod|bool }}'
+      configuration_directory: '{{ php__apachemod_configuration_directory }}'
+      configuration_include_directory: '{{ php__apachemod_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__apachemod_extensions }}'
+      sapi_specific_settings: '{{ php__apachemod_settings }}'
+      notify: ['reload-php-apache2']
+    - name: fpm
+      condition: '{{ php__fpm|bool }}'
+      configuration_directory: '{{ php__fpm_configuration_directory }}'
+      configuration_include_directory: '{{ php__fpm_include_configuration_directory }}'
+      sapi_specific_extensions: '{{ php__fpm_extensions }}'
+      sapi_specific_settings: '{{ php__fpm_settings }}'
+      notify: ['reload-php-fpm']
+  when: outer_item.condition
+  loop_control:
+    loop_var: outer_item
+
+- name: Include PHP FPM configuration tasks
+  include_tasks: configure-fpm.yml
+  when: php__fpm|bool

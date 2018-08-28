@@ -1,0 +1,52 @@
+---
+
+- name: Ensure log directory exists
+  file:
+    path: '{{ php__fpm_service_log_directory }}'
+    owner: '{{ php__fpm_service_user }}'
+    group: '{{ php__fpm_service_group }}'
+    mode: 0750
+    state: directory
+
+- name: Ensure pool.d configuration directories exists
+  file:
+    path: '{{ item }}'
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - '{{ php__fpm_pool_configuration_directory }}'
+
+- name: Setup main configuration file
+  template:
+    src: php-fpm.conf.j2
+    dest: '{{ php__fpm_service_configuration_file }}'
+    owner: root
+    group: root
+    mode: 0644
+    validate: '{{ php__fpm_service_configuration_validator }}'
+  notify: ['restart-php-fpm']
+
+- name: List installed pools
+  find:
+    paths: '{{ php__fpm_pool_configuration_directory }}'
+    file_type: file
+  register: _php__fpm_installed_pools
+
+- name: Remove undefined pools
+  file:
+    path: '{{ item }}'
+    state: absent
+  with_items: "{{ _php__fpm_installed_pools.files|map(attribute='path')|list }}"
+  when: php__fpm_purge_pools|bool
+        and item|basename|replace('.conf', '') not in php__fpm_pools.keys()|list
+  notify: ['reload-php-fpm']
+
+- name: Setup FPM pools
+  include_tasks: types/pool.yml
+  vars:
+    php__fpm_pool: "{{ php__fpm_defaut_pool|combine(outer_item.value)|combine({'name': outer_item.key}) }}"
+  with_dict: '{{ php__fpm_pools }}'
+  loop_control:
+    loop_var: outer_item

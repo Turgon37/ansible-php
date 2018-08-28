@@ -1,0 +1,61 @@
+---
+
+- name: Check instance prerequisites
+  assert:
+    that:
+      - php__fpm_pool is defined
+      - php__fpm_pool.name is defined
+      - php__fpm_pool.state|d('present') in ['present', 'absent']
+      - php__fpm_pool.listen is defined
+      - "'/' in php__fpm_pool.listen or ':' in php__fpm_pool.listen"
+      - php__fpm_pool.process_priority is not defined or
+        (-19 <= php__fpm_pool.process_priority and php__fpm_pool.process_priority <= 20)
+      - php__fpm_pool.pm is defined and php__fpm_pool.pm in ['static', 'dynamic', 'ondemand']
+      - php__fpm_pool.pm != 'dynamic' or php__fpm_pool.pm_min_spare_servers is defined
+      - php__fpm_pool.pm != 'dynamic' or php__fpm_pool.pm_max_spare_servers is defined
+      - php__fpm_pool.request_slowlog_timeout is not defined
+        or php__fpm_pool.request_slowlog_timeout|int == 0
+        or php__fpm_pool.slowlog is defined
+      - php__fpm_pool.pm_status_path is not defined or php__fpm_pool.pm_status_path == omit
+         or php__fpm_pool.pm_status_path[0] == '/'
+      - php__fpm_pool.ping_path is not defined or php__fpm_pool.ping_path[0] == '/'
+      - php__fpm_pool.php_flag.values()|unique|list|difference(['on', 'off', '1', '0', 'true', 'false', 'yes', 'no'])|length == 0
+      - php__fpm_pool.php_admin_flag.values()|unique|list|difference(['on', 'off', '1', '0', 'true', 'false', 'yes', 'no'])|length == 0
+    msg: >
+      php__fpm_pool must be defined with specifications,
+      php__fpm_pool.name must contains the name of the instance,
+  tags: ['always']
+
+- name: Init some values
+  set_fact:
+    _php__fpm_pool_configuration_file: '{{ php__fpm_pool_configuration_directory }}/{{ php__fpm_pool.name }}.conf'
+  tags: ['always']
+
+# Ensure required folder before the full php role is applied
+
+- name: Ensure pools directories exists
+  file:
+    path: '{{ php__fpm_pool_configuration_directory }}'
+    state: directory
+  tags: ['php', 'php-configure', 'php-pool']
+
+- name: Install pool configuration file
+  template:
+    src: pool.conf.j2
+    dest: '{{ _php__fpm_pool_configuration_file }}'
+    owner: root
+    group: root
+    mode: 0644
+    validate: '{{ php__fpm_service_configuration_validator }}'
+  when: php__fpm_pool.state|d('present') == 'present'
+  register: _php__fpm_pool_configuration
+  notify: ['reload-php-fpm']
+  tags: ['php', 'php-configure', 'php-pool']
+
+- name: Remove pool configuration file
+  file:
+    path: '{{ _php__fpm_pool_configuration_file }}'
+    state: absent
+  when: php__fpm_pool.state|d('present') != 'present'
+  notify: ['reload-php-fpm']
+  tags: ['php', 'php-configure', 'php-pool']

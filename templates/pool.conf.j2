@@ -1,0 +1,90 @@
+{%- import '_macros.j2' as macros with context -%}
+{{ ansible_managed|comment(decoration='; ') }}
+
+; the variable $pool can be used in any directive and will be replaced by the
+; pool name
+[{{ php__fpm_pool.name }}]
+
+user = {{ php__fpm_pool.user }}
+group = {{ php__fpm_pool.group }}
+
+listen = {{ php__fpm_pool.listen }}
+listen.backlog = {{ php__fpm_pool.listen_backlog }}
+listen.owner = {{ php__fpm_pool.listen_owner }}
+listen.group = {{ php__fpm_pool.listen_group }}
+listen.mode = {{ php__fpm_pool.listen_mode }}
+
+{% if php__fpm_pool.listen_acl_users is defined %}
+listen.acl_users = {{ php__fpm_pool.listen_acl_users }}
+{% endif %}
+{% if php__fpm_pool.listen_acl_groups is defined %}
+listen.acl_groups = {{ php__fpm_pool.listen_acl_groups  }}
+{% endif %}
+listen.allowed_clients = {{ php__fpm_pool.listen_allowed_clients }}
+
+{% if php__fpm_pool.process_priority is defined %}
+process.priority = {{ php__fpm_pool.process_priority }}
+{% endif %}
+process.dumpable = {{ macros.bool(php__fpm_pool.process_dumpable) }}
+catch_workers_output = {{ macros.bool(php__fpm_pool.catch_workers_output) }}
+{% if php__fpm_pool.rlimit_files is defined %}
+rlimit_files = {{ php__fpm_pool.rlimit_files|int }}
+{% endif %}
+{% if php__fpm_pool.rlimit_core is defined %}
+rlimit_core = {{ php__fpm_pool.rlimit_core }}
+{% endif %}
+{% if php__fpm_pool.chroot is defined %}
+chroot = {{ php__fpm_pool.chroot }}
+{% endif %}
+{% if php__fpm_pool.chdir is defined %}
+chdir = {{ php__fpm_pool.chdir }}
+{% endif %}
+
+pm = {{ php__fpm_pool.pm }}
+pm.max_children = {{ php__fpm_pool.pm_max_children }}
+pm.start_servers = {{ php__fpm_pool.pm_start_servers }}
+pm.min_spare_servers = {{ php__fpm_pool.pm_min_spare_servers }}
+pm.max_spare_servers = {{ php__fpm_pool.pm_max_spare_servers }}
+pm.process_idle_timeout = {{ php__fpm_pool.pm_process_idle_timeout }}
+pm.max_requests = {{ php__fpm_pool.pm_max_requests }}
+
+{% if php__fpm_pool.access_log is defined %}
+access.log = {{ php__fpm_pool.access_log }}
+{% endif %}
+access.format = "{{ php__fpm_pool.access_format }}"
+
+{% if php__fpm_pool.slowlog is defined %}
+slowlog = {{ php__fpm_pool.slowlog }}
+{% endif %}
+request_slowlog_timeout = {{ php__fpm_pool.request_slowlog_timeout|int }}
+request_terminate_timeout = {{ php__fpm_pool.request_terminate_timeout|int }}
+
+{% if php__fpm_pool.pm_status_path is defined and php__fpm_pool.pm_status_path != omit %}
+pm.status_path = {{ php__fpm_pool.pm_status_path }}
+{% endif %}
+{% if php__fpm_pool.ping_path is defined %}
+ping.path = {{ php__fpm_pool.ping_path }}
+{% endif %}
+{% if php__fpm_pool.ping_response is defined %}
+ping.response = {{ php__fpm_pool.ping_response }}
+{% endif %}
+
+clear_env = {{ macros.bool(php__fpm_pool.clear_env) }}
+{% for name,value in php__fpm_pool.env|dictsort %}
+env[{{ name }}] = {{ value }}
+{% endfor %}
+security.limit_extensions = {{ php__fpm_pool.security_limit_extensions|join(' ') }}
+
+{% for name,value in php__fpm_pool.php_value|dictsort %}
+php_value[{{ name }}] = {{ value }}
+{% endfor %}
+{% for name,value in php__fpm_pool.php_admin_value|dictsort %}
+php_admin_value[{{ name }}] = {{ value }}
+{% endfor %}
+
+{% for name,value in php__fpm_pool.php_flag|dictsort %}
+php_flag[{{ name }}] = {{ value }}
+{% endfor %}
+{% for name,value in php__fpm_pool.php_admin_flag|dictsort %}
+php_admin_flag[{{ name }}] = {{ value }}
+{% endfor %}

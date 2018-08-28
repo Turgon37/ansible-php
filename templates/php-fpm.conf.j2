@@ -1,0 +1,36 @@
+{{ ansible_managed|comment(decoration='; ') }}
+
+[global]
+pid = {{ php__fpm_service_pidfile }}
+
+error_log = {{ php__fpm_error_log }}
+
+syslog.facility = {{ php__fpm_syslog_facility }}
+syslog.ident = {{ php__fpm_syslog_ident }}
+
+log_level = {{ php__fpm_log_level }}
+
+emergency_restart_threshold = {{ php__fpm_emergency_restart_threshold }}
+emergency_restart_interval = {{ php__fpm_emergency_restart_interval }}
+
+process_control_timeout = {{ php__fpm_process_control_timeout }}
+process.max = {{ php__fpm_process_max }}
+{% if php__fpm_process_priority is defined %}
+process.priority = {{ php__fpm_process_priority }}
+{% endif %}
+
+{% if php__fpm_rlimit_files is defined %}
+rlimit_files = {{ php__fpm_rlimit_files }}
+{% endif %}
+
+{% if php__fpm_events_mechanism is defined %}
+events.mechanism = {{ php__fpm_events_mechanism }}
+{% endif %}
+
+systemd_interval = {{ php__fpm_systemd_interval }}
+
+;;;;;;;;;;;;;;;;;;;;
+; Pool Definitions ;
+;;;;;;;;;;;;;;;;;;;;
+
+include = {{ php__fpm_pool_configuration_directory }}/*.conf

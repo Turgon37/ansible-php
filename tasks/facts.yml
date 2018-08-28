@@ -1,0 +1,17 @@
+---
+
+- name: Create custom fact directory
+  file:
+    path: "{{ facts__dir|d('/etc/ansible/facts.d') }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  tags: ['php', 'php-facts']
+
+- name: Insert custom fact file
+  copy:
+    src: files/php.facts.py
+    dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/php.fact"
+    mode: 0755
+  tags: ['php', 'php-facts']

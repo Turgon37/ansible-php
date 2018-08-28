@@ -1,0 +1,50 @@
+---
+# tasks file for ansible-php
+
+- name: Include the OS specific variables
+  include_vars: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml'
+        - '{{ ansible_lsb.id|d(ansible_distribution) }}.yml'
+        - '{{ ansible_os_family }}.yml'
+        - defaults.yml
+      skip: true
+  tags: ['always']
+
+- name: Check role availability
+  fail:
+    msg: 'This role only works on Debian or derivatives like Ubuntu'
+  when: ansible_os_family != 'Debian'
+
+- name: Check role availability
+  fail:
+    msg: 'This role only works on systemd service manager'
+  when: ansible_service_mgr != 'systemd'
+
+- name: Importing initialization tasks
+  import_tasks: init.yml
+  tags: ['always']
+
+- name: Import install tasks
+  import_tasks: install.yml
+  tags: ['php', 'php-install']
+
+- name: Import configurations tasks
+  import_tasks: configure.yml
+  tags: ['php', 'php-configure']
+
+- name: Include FPM service tasks
+  include_tasks: service.yml
+  when: php__fpm|bool
+  tags: ['php', 'php-service']
+
+- name: Optionally include monitoring tasks
+  include_tasks: 'monitoring/{{ php__monitoring }}.yml'
+  when: php__monitoring is defined
+  tags: ['php', 'php-monitoring']
+
+- name: Optionally include facts tasks
+  include_tasks: facts.yml
+  when: php__facts|bool
+  tags: ['php', 'php-facts']

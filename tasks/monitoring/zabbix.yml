@@ -1,0 +1,40 @@
+---
+
+- name: Configure zabbix userparameters
+  include_role:
+    name: zabbix-agent
+    tasks_from: types/user_parameter
+  vars:
+    zabbix_agent__userparameter:
+      name: php_fpm
+      userparameters:
+        - key: php_fpm.discovery
+          comment: return zabbix discovery item for FPM master daemon
+          command: >-
+            /usr/bin/env python -c 'import json, sys; json.dump({"data": [{"{"+"#PHP_FPM_INSTANCE}": "master", "{"+"#PHP_FPM_EXECUTABLE}": "{{ php__fpm_service_executable|basename }}", "{"+"#PHP_FPM_CONFIGURATION_FILE}": "{{ php__fpm_service_configuration_file }}"}]}, sys.stdout)'
+        - key: php_fpm.pools.discovery
+          comment: return zabbix discovery item for FPM pools instances
+          command: >-
+            {%- set _monitored_pools = [] -%}
+            {%- for name, params in php__fpm_pools|dictsort -%}
+            {%    set _pool = php__fpm_defaut_pool|combine(params)|combine({'name': name}) %}
+            {%    if _pool.pm_status_path is defined and _pool.pm_status_path != omit %}
+            {%      set _ = _monitored_pools.append(
+                          {
+                            'PHP_FPM_POOL': name,
+                            'PHP_FPM_SOCKET': (_pool.listen if '/' in _pool.listen else ''),
+                            'PHP_FPM_PORT': (_pool.listen.split(':')[-1:]|join('') if '/' not in _pool.listen else ''),
+                            'PHP_FPM_HOST': (_pool.listen.split(':')[:-1]|join(':') if '/' not in _pool.listen else ''),
+                            'PHP_FPM_URL': _pool.pm_status_path
+                          }) %}
+            {%    endif %}
+            {%- endfor -%}
+            /usr/bin/env python -c 'import json, sys; json.dump({"data": list(map(lambda x: dict(map(lambda y: ("{"+"#"+y[0]+"}", y[1]), x.items())), {{ _monitored_pools|to_json }})) }, sys.stdout)'
+        - key: php_fpm.pools.status[*]
+          command: '{{ php__custom_scripts_directory }}/php_status.sh "$1" "$2" "$3" "$4"'
+          sudo: true
+          sudo_user: '{{ php__fpm_service_user }}'
+          sudo_group: '{{ php__fpm_service_group }}'
+          sudo_command: '{{ php__custom_scripts_directory }}/php_status.sh'
+      state: "{{ php__fpm|ternary('present', 'absent') }}"
+  tags: ['php', 'php-monitoring']

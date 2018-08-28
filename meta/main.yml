@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: php
+  author: Pierre GINDRAUD
+  description: This role install and configure PHP
+  license: MIT
+  min_ansible_version: 2.4
+  platforms:
+    - name: Debian
+      versions:
+        - jessie
+        - stretch
+  galaxy_tags:
+    - php
+    - fpm
+
+dependencies: []

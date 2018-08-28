@@ -1,0 +1,54 @@
+---
+
+- name: Ensure systemd override directory is created
+  file:
+    path: '{{ php__fpm_service_systemd_override_options_directory }}'
+    state: directory
+  tags: ['php', 'php-service']
+
+- name: Install systemd options override file
+  template:
+    src: systemd_override.service.d.j2
+    dest: '{{ php__fpm_service_systemd_override_options_directory }}/override.conf'
+  notify: ['restart-php-fpm']
+  register: _php__fpm_service_systemd
+  tags: ['php', 'php-service']
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+  when: _php__fpm_service_systemd is changed
+  changed_when: true
+  tags: ['php', 'php-service']
+
+- meta: flush_handlers
+
+- name: Ensure PHP FPM daemon is started and enabled on boot
+  service:
+    name: '{{ php__fpm_service_name }}'
+    enabled: '{{ php__fpm_service_enabled|bool }}'
+    state: "{{ php__fpm_service_enabled|bool|ternary('started', 'stopped') }}"
+  tags: ['php', 'php-service']
+
+# restart feature
+
+- name: Test if PHP FPM need to be restart
+  stat:
+    path: '{{ php__fpm_service_restart_stamp_file }}'
+  register: _php__fpm_service_restart_file
+  tags: ['php', 'php-service']
+
+- name: Trigger restart of PHP FPM if needed and allowed
+  command: /bin/true
+  when: php__fpm_service_enabled|bool
+    and php__fpm_service_restartable|bool
+    and _php__fpm_service_restart_file.stat.exists
+  notify: ['restart-php-fpm']
+  tags: ['php', 'php-service']
+
+- name: Remove stamp file if PHP FPM daemon is disabled
+  file:
+    path: '{{ php__fpm_service_restart_stamp_file }}'
+    state: absent
+  when: not php__fpm_service_enabled|bool
+  tags: ['php', 'php-service']

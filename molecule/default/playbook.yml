@@ -1,0 +1,10 @@
+---
+- name: Run role
+  hosts: all
+  any_errors_fatal: true
+  roles:
+    - role: ansible-php
+  vars:
+    php__cli: true
+    php__apachemod: true
+    php__fpm: true
