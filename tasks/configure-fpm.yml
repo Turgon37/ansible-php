@@ -1,5 +1,13 @@
 ---
 
+- name: Ensure log directory exists
+  file:
+    path: '{{ php__fpm_service_log_directory }}'
+    owner: '{{ php__fpm_service_user }}'
+    group: '{{ php__fpm_service_group }}'
+    mode: 0750
+    state: directory
+
 - name: Ensure pool.d configuration directories exists
   file:
     path: '{{ item }}'

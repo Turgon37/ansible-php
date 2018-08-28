@@ -52,7 +52,7 @@ php__extensions_package_names_map:
 
 # default extensions provided by Debian common package
 php__extensions_default_map:
-  5.6: {}
+  '5.6': {}
   default:
     calendar:
     ctype:

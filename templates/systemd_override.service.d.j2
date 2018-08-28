@@ -4,4 +4,4 @@
 # Remove must restart stamp file
 ExecStartPre=-/usr/bin/env rm -f {{ php__fpm_service_restart_stamp_file }}
 # Ensure runtime directory
-ExecStartPre=/usr/bin/env install --directory {{ php__fpm_service_run_dir }} --owner {{ php__fpm_service_user }} --group {{ php__fpm_service_group }} --mode 755
+ExecStartPre=/usr/bin/env install --directory {{ php__fpm_service_run_directory }} --owner {{ php__fpm_service_user }} --group {{ php__fpm_service_group }} --mode 755
