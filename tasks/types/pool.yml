@@ -1,6 +1,6 @@
 ---
 
-- name: Check instance prerequisites
+- name: Check pool prerequisites
   assert:
     that:
       - php__fpm_pool is defined
@@ -33,13 +33,13 @@
 
 # Ensure required folder before the full php role is applied
 
-- name: Ensure pools directories exists
+- name: 'Ensure pools directories exists for {{ php__fpm_pool.name }}'
   file:
     path: '{{ php__fpm_pool_configuration_directory }}'
     state: directory
   tags: ['php', 'php-configure', 'php-pool']
 
-- name: Install pool configuration file
+- name: 'Install pool configuration file for {{ php__fpm_pool.name }}'
   template:
     src: pool.conf.j2
     dest: '{{ _php__fpm_pool_configuration_file }}'
@@ -52,7 +52,7 @@
   notify: ['reload-php-fpm']
   tags: ['php', 'php-configure', 'php-pool']
 
-- name: Remove pool configuration file
+- name: 'Remove pool configuration file for {{ php__fpm_pool.name }}'
   file:
     path: '{{ _php__fpm_pool_configuration_file }}'
     state: absent

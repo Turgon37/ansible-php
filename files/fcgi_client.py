@@ -29,12 +29,9 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $Id$
-#
 # Copyright (c) 2011 Vladimir Rusinov <vladimir@greenmice.info>
 
 __author__ = 'Allan Saddi <allan@saddi.com>'
-__version__ = '$Revision$'
 
 import argparse
 import errno
@@ -50,8 +47,6 @@ if sys.version_info[0] == 3:
 else:
     string_types = basestring,
     from cStringIO import StringIO
-
-__all__ = ['FCGIApp']
 
 # Constants from the spec.
 FCGI_LISTENSOCK_FILENO = 0
