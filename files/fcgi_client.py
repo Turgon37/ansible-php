@@ -42,7 +42,6 @@ import select
 import socket
 import struct
 import sys
-import types
 
 # python 3
 if sys.version_info[0] == 3:
@@ -218,13 +217,14 @@ class Record(object):
         if length < FCGI_HEADER_LEN:
             raise EOFError
 
-        self.version, self.type, self.requestId, self.contentLength, \
-                      self.paddingLength = struct.unpack(FCGI_Header, header)
+        (self.version, self.type, self.requestId, self.contentLength,
+        self.paddingLength) = struct.unpack(FCGI_Header, header)
 
-        if __debug__: _debug(9, 'read: fd = %d, type = %d, requestId = %d, '
-                             'contentLength = %d' %
-                             (sock.fileno(), self.type, self.requestId,
-                              self.contentLength))
+        if __debug__:
+            _debug(9, ('read: fd = {}, type = {}, requestId = {}, '
+                       'contentLength = {}').format(
+                       sock.fileno(), self.type, self.requestId,
+                       self.contentLength))
 
         if self.contentLength:
             try:
@@ -264,10 +264,11 @@ class Record(object):
         """Encode and write a Record to a socket."""
         self.paddingLength = -self.contentLength & 7
 
-        if __debug__: _debug(9, 'write: fd = %d, type = %d, requestId = %d, '
-                             'contentLength = %d' %
-                             (sock.fileno(), self.type, self.requestId,
-                              self.contentLength))
+        if __debug__:
+            _debug(9, ('write: fd = {}, type = {}, requestId = {}, ' +
+                       'contentLength = {}').format(
+                       sock.fileno(), self.type, self.requestId,
+                       self.contentLength))
 
         header = struct.pack(FCGI_Header, self.version, self.type,
                              self.requestId, self.contentLength,
@@ -278,12 +279,13 @@ class Record(object):
         if self.paddingLength:
             self._sendall(sock, '\x00'*self.paddingLength)
 
+
 class FCGIApp(object):
 
     def __init__(self, connect=None, host=None, port=None, filterEnviron=True):
         if host is not None:
             assert port is not None
-            connect=(host, port)
+            connect = (host, port)
 
         self._connect = connect
         self._filterEnviron = filterEnviron
@@ -328,7 +330,8 @@ class FCGIApp(object):
             rec.contentLength = len(s)
             rec.write(sock)
 
-            if not s: break
+            if not s:
+                break
 
         # Empty FCGI_DATA stream
         rec = Record(FCGI_DATA, requestId)
@@ -351,7 +354,7 @@ class FCGIApp(object):
             elif inrec.type == FCGI_STDERR:
                 # Simply forward to wsgi.errors
                 err += inrec.contentData
-                #environ['wsgi.errors'].write(inrec.contentData)
+                # environ['wsgi.errors'].write(inrec.contentData)
             elif inrec.type == FCGI_END_REQUEST:
                 # TODO: Process appStatus/protocolStatus fields?
                 break
@@ -369,8 +372,9 @@ class FCGIApp(object):
         pos = 0
         while True:
             eolpos = result.find('\n', pos)
-            if eolpos < 0: break
-            line = result[pos:eolpos-1]
+            if eolpos < 0:
+                break
+            line = result[pos:eolpos - 1]
             pos = eolpos + 1
 
             # strip in case of CR. NB: This will also strip other
@@ -378,7 +382,8 @@ class FCGIApp(object):
             line = line.strip()
 
             # Empty line signifies end of headers
-            if not line: break
+            if not line:
+                break
 
             # TODO: Better error handling
             header, value = line.split(':', 1)
@@ -397,8 +402,8 @@ class FCGIApp(object):
         result = result[pos:]
 
         # Set WSGI status, headers, and return result.
-        #start_response(status, headers)
-        #return [result]
+        # start_response(status, headers)
+        # return [result]
 
         return status, headers, result, err
 
@@ -442,7 +447,6 @@ class FCGIApp(object):
         return result
 
     def _fcgiParams(self, sock, requestId, params):
-        #print params
         rec = Record(FCGI_PARAMS, requestId)
         data = []
         for name, value in list(params.items()):
@@ -514,7 +518,6 @@ if __name__ == '__main__':
         url_parts = args.url.split('?')
         script_name = url_parts[0]
         query_string = ''.join(url_parts[1:])
-
 
     if args.socket:
         client = FCGIApp(connect=args.socket)
