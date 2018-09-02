@@ -218,13 +218,13 @@ class Record(object):
             raise EOFError
 
         (self.version, self.type, self.requestId, self.contentLength,
-        self.paddingLength) = struct.unpack(FCGI_Header, header)
+         self.paddingLength) = struct.unpack(FCGI_Header, header)
 
         if __debug__:
             _debug(9, ('read: fd = {}, type = {}, requestId = {}, '
                        'contentLength = {}').format(
-                       sock.fileno(), self.type, self.requestId,
-                       self.contentLength))
+                           sock.fileno(), self.type, self.requestId,
+                           self.contentLength))
 
         if self.contentLength:
             try:
@@ -267,8 +267,8 @@ class Record(object):
         if __debug__:
             _debug(9, ('write: fd = {}, type = {}, requestId = {}, ' +
                        'contentLength = {}').format(
-                       sock.fileno(), self.type, self.requestId,
-                       self.contentLength))
+                           sock.fileno(), self.type, self.requestId,
+                           self.contentLength))
 
         header = struct.pack(FCGI_Header, self.version, self.type,
                              self.requestId, self.contentLength,
@@ -277,7 +277,7 @@ class Record(object):
         if self.contentLength:
             self._sendall(sock, self.contentData)
         if self.paddingLength:
-            self._sendall(sock, '\x00'*self.paddingLength)
+            self._sendall(sock, '\x00' * self.paddingLength)
 
 
 class FCGIApp(object):
