@@ -29,12 +29,9 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $Id$
-#
 # Copyright (c) 2011 Vladimir Rusinov <vladimir@greenmice.info>
 
 __author__ = 'Allan Saddi <allan@saddi.com>'
-__version__ = '$Revision$'
 
 import argparse
 import errno
@@ -50,8 +47,6 @@ if sys.version_info[0] == 3:
 else:
     string_types = basestring,
     from cStringIO import StringIO
-
-__all__ = ['FCGIApp']
 
 # Constants from the spec.
 FCGI_LISTENSOCK_FILENO = 0
@@ -218,13 +213,13 @@ class Record(object):
             raise EOFError
 
         (self.version, self.type, self.requestId, self.contentLength,
-        self.paddingLength) = struct.unpack(FCGI_Header, header)
+         self.paddingLength) = struct.unpack(FCGI_Header, header)
 
         if __debug__:
             _debug(9, ('read: fd = {}, type = {}, requestId = {}, '
                        'contentLength = {}').format(
-                       sock.fileno(), self.type, self.requestId,
-                       self.contentLength))
+                           sock.fileno(), self.type, self.requestId,
+                           self.contentLength))
 
         if self.contentLength:
             try:
@@ -267,8 +262,8 @@ class Record(object):
         if __debug__:
             _debug(9, ('write: fd = {}, type = {}, requestId = {}, ' +
                        'contentLength = {}').format(
-                       sock.fileno(), self.type, self.requestId,
-                       self.contentLength))
+                           sock.fileno(), self.type, self.requestId,
+                           self.contentLength))
 
         header = struct.pack(FCGI_Header, self.version, self.type,
                              self.requestId, self.contentLength,
@@ -277,7 +272,7 @@ class Record(object):
         if self.contentLength:
             self._sendall(sock, self.contentData)
         if self.paddingLength:
-            self._sendall(sock, '\x00'*self.paddingLength)
+            self._sendall(sock, '\x00' * self.paddingLength)
 
 
 class FCGIApp(object):
