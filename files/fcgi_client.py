@@ -2,7 +2,7 @@
 
 # This script has been build on this project
 # https://github.com/Terr/pyfcgiclient
-# Some improvement and simplification have been made to 
+# Some improvement and simplification have been made to
 # use it as monitoring script
 
 # Copyright (c) 2006 Allan Saddi <allan@saddi.com>
@@ -39,11 +39,18 @@ __version__ = '$Revision$'
 import argparse
 import errno
 import select
-import struct
 import socket
+import struct
+import sys
 import types
 
-from cStringIO import StringIO
+# python 3
+if sys.version_info[0] == 3:
+    string_types = str,
+    from io import StringIO
+else:
+    string_types = basestring,
+    from cStringIO import StringIO
 
 __all__ = ['FCGIApp']
 
@@ -108,8 +115,9 @@ if __debug__:
             f = open(DEBUGLOG, 'a')
             f.write('%sfcgi: %s\n' % (time.ctime()[4:-4], msg))
             f.close()
-        except:
+        except IOError:
             pass
+
 
 def decode_pair(s, pos=0):
     """
@@ -120,24 +128,25 @@ def decode_pair(s, pos=0):
     """
     nameLength = ord(s[pos])
     if nameLength & 128:
-        nameLength = struct.unpack('!L', s[pos:pos+4])[0] & 0x7fffffff
+        nameLength = struct.unpack('!L', s[pos:pos + 4])[0] & 0x7fffffff
         pos += 4
     else:
         pos += 1
 
     valueLength = ord(s[pos])
     if valueLength & 128:
-        valueLength = struct.unpack('!L', s[pos:pos+4])[0] & 0x7fffffff
+        valueLength = struct.unpack('!L', s[pos:pos + 4])[0] & 0x7fffffff
         pos += 4
     else:
         pos += 1
 
-    name = s[pos:pos+nameLength]
+    name = s[pos:pos + nameLength]
     pos += nameLength
-    value = s[pos:pos+valueLength]
+    value = s[pos:pos + valueLength]
     pos += valueLength
 
     return (pos, (name, value))
+
 
 def encode_pair(name, value):
     """
@@ -149,15 +158,16 @@ def encode_pair(name, value):
     if nameLength < 128:
         s = chr(nameLength)
     else:
-        s = struct.pack('!L', nameLength | 0x80000000L)
+        s = struct.pack('!L', nameLength | 0x80000000)
 
     valueLength = len(value)
     if valueLength < 128:
         s += chr(valueLength)
     else:
-        s += struct.pack('!L', valueLength | 0x80000000L)
+        s += struct.pack('!L', valueLength | 0x80000000)
 
     return s + name + value
+
 
 class Record(object):
     """
@@ -183,13 +193,13 @@ class Record(object):
         while length:
             try:
                 data = sock.recv(length)
-            except socket.error, e:
+            except socket.error as e:
                 if e[0] == errno.EAGAIN:
                     select.select([sock], [], [])
                     continue
                 else:
                     raise
-            if not data: # EOF
+            if not data:  # EOF
                 break
             dataList.append(data)
             dataLen = len(data)
@@ -202,7 +212,7 @@ class Record(object):
         """Read and decode a Record from a socket."""
         try:
             header, length = self._recvall(sock, FCGI_HEADER_LEN)
-        except:
+        except IOError:
             raise EOFError
 
         if length < FCGI_HEADER_LEN:
@@ -220,7 +230,7 @@ class Record(object):
             try:
                 self.contentData, length = self._recvall(sock,
                                                          self.contentLength)
-            except:
+            except IOError:
                 raise EOFError
 
             if length < self.contentLength:
@@ -229,7 +239,7 @@ class Record(object):
         if self.paddingLength:
             try:
                 self._recvall(sock, self.paddingLength)
-            except:
+            except IOError:
                 raise EOFError
 
     def _sendall(sock, data):
@@ -240,7 +250,7 @@ class Record(object):
         while length:
             try:
                 sent = sock.send(data)
-            except socket.error, e:
+            except socket.error as e:
                 if e[0] == errno.EAGAIN:
                     select.select([], [sock], [])
                     continue
@@ -396,7 +406,7 @@ class FCGIApp(object):
         if self._connect is not None:
             # The simple case. Create a socket and connect to the
             # application.
-            if isinstance(self._connect, types.StringTypes):
+            if isinstance(self._connect, string_types):
                 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
                 sock.connect(self._connect)
             elif hasattr(socket, 'create_connection'):
@@ -407,7 +417,7 @@ class FCGIApp(object):
             return sock
 
         # To be done when I have more time...
-        raise NotImplementedError, 'Launching and managing FastCGI programs not yet implemented'
+        raise NotImplementedError('Launching and managing FastCGI programs not yet implemented')
 
     def _fcgiGetValues(self, sock, vars):
         # Construct FCGI_GET_VALUES record
@@ -435,7 +445,7 @@ class FCGIApp(object):
         #print params
         rec = Record(FCGI_PARAMS, requestId)
         data = []
-        for name,value in params.items():
+        for name, value in list(params.items()):
             data.append(encode_pair(name.encode('latin-1'), value.encode('latin-1')))
         data = ''.join(data)
         rec.contentData = data
@@ -449,7 +459,7 @@ class FCGIApp(object):
 
     def _defaultFilterEnviron(self, environ):
         result = {}
-        for n in environ.keys():
+        for n in list(environ.keys()):
             for p in self._environPrefixes:
                 if n.startswith(p):
                     result[n] = environ[n]
@@ -462,7 +472,7 @@ class FCGIApp(object):
 
     def _lightFilterEnviron(self, environ):
         result = {}
-        for n in environ.keys():
+        for n in list(environ.keys()):
             if n.upper() == n:
                 result[n] = environ[n]
         return result
@@ -494,7 +504,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     if args.verbose:
-        print(str(vars(args)))
+        print((str(vars(args))))
 
     content = dict(error=None)
 
@@ -528,7 +538,7 @@ if __name__ == '__main__':
         'SERVER_NAME': args.host,
     }
     if args.verbose:
-        print('using parameters {}'.format(str(params)))
+        print(('using parameters {}'.format(str(params))))
 
     status_header, headers, output, error_message = client(params, '')
     print(output)
